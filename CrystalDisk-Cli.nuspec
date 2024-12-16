@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>CrystalDisk-Cli</id>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
     <authors>Lifailon</authors>
     <owners>Lifailon</owners>
     <repository type="git" url="https://github.com/Lifailon/CrystalDisk-Cli" />
@@ -10,11 +10,11 @@
     <licenseUrl>https://github.com/Lifailon/CrystalDisk-Cli/blob/rsa/README.md</licenseUrl>
     <description>Command line interface using PowerShell module for sofrtware CrystalDiskInfo</description>
     <tags>PowerShell, Module, Disk, DiskInfo, CrystalDisk, Smart, Monitoring, Metrics, ini</tags>
-    <contentFiles>
-      <files include="CrystalDisk-Cli.psm1" buildAction="Content" />
-      <files include="CrystalDisk-Cli.psd1" buildAction="Content" />
-      <files include="README.md" buildAction="Content" />
-      <files include="LICENSE" buildAction="Content" />
-    </contentFiles>
   </metadata>
+  <files>
+    <file src="Module\CrystalDisk-Cli\0.2\CrystalDisk-Cli.psm1" target="CrystalDisk-Cli.psm1" />
+    <file src="Module\CrystalDisk-Cli\0.2\CrystalDisk-Cli.psd1" target="CrystalDisk-Cli.psd1" />
+    <file src="README.md" target="README.md" />
+    <file src="LICENSE" target="LICENSE" />
+  </files>
 </package>
