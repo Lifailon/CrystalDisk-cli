@@ -45,6 +45,12 @@ function Get-DiskInfo {
         $Path = "C:\Program Files\CrystalDiskInfo"
     )
     $Smart_Path = "$Path\Smart"
+    # Проверьте, существует ли заданный путь, если нет, то выбросьте ошибку
+    if ((Test-Path $Path, $Smart_Path) -contains $false) {
+        Write-Error -Category ObjectNotFound -TargetObject $Path -Message "CrystalDiskInfo was not found at path: `"$Path`"."
+        Write-Host -ForegroundColor Cyan "Try running `"winget install -e --id=CrystalDewWorld.CrystalDiskInfo`""
+        break
+    }
     # Формируем массив из имен дисков вложенных директорий
     $Disk_Array = @($(Get-ChildItem $Smart_Path | Where-Object Attributes -eq "Directory").Name)
     if ($List){
@@ -54,7 +60,17 @@ function Get-DiskInfo {
         if ($Report) {
             # Запускаем отчет и проверяем его создание по дате изменения
             $DateTemp = Get-Date
-            Start-Process -FilePath "$Path\DiskInfo64.exe" -ArgumentList "/CopyExit" -WindowStyle Hidden
+            # Посмотрите, какая версия установлена
+            $ExecutableEditions = @("$Path\DiskInfo64.exe", "$Path\DiskInfo64S.exe", "$Path\DiskInfo64A.exe", "$Path\DiskInfo64K.exe")
+            $TestedPaths = Test-Path $ExecutableEditions
+            # Если не найдено ни одного из них, выбросьте ошибку
+            if ($TestedPaths -notcontains $true) {
+                Write-Error -Category ObjectNotFound -TargetObject $ExecutableEditions[0] -Message "CrystalDiskInfo executable was not found! Validate your install."
+                break
+            }
+            # Сопоставьте версию с путем к исполняемому файлу
+            $Executable = $ExecutableEditions[$TestedPaths.IndexOf($true)]
+            Start-Process -FilePath $Executable -ArgumentList "/CopyExit" -WindowStyle Hidden
             while ($true) {
                 if ($(Get-ChildItem "$Path\DiskInfo.txt" -ErrorAction Ignore).LastWriteTime -gt $DateTemp) {
                     break
@@ -129,6 +145,12 @@ function Get-DiskInfoSettings {
         [ValidateSet("True","False")]$Resident,
         $Path = "C:\Program Files\CrystalDiskInfo"
     )
+    # Проверьте, существует ли заданный путь, если нет, то выбросьте ошибку
+    if ((Test-Path $Path, "$Path\DiskInfo.ini") -contains $false) {
+        Write-Error -Category ObjectNotFound -TargetObject $Path -Message "CrystalDiskInfo was not found at path: `"$Path`"."
+        Write-Host -ForegroundColor Cyan "Try running `"winget install -e --id=CrystalDewWorld.CrystalDiskInfo`""
+        break
+    }
     $Config_ini = Get-Content "$Path\DiskInfo.ini"
     if ($AutoRefresh -or $Startup -or $Resident) {
         Get-Process *DiskInfo* | Stop-Process
@@ -152,7 +174,17 @@ function Get-DiskInfoSettings {
             $Config_ini = $Config_ini -replace 'Resident=".+',"Resident=`"$Mode`""
             $Config_ini | Out-File "$Path\DiskInfo.ini" -Force
         }
-        Start-Process -FilePath "$Path\DiskInfo64.exe" -WindowStyle Hidden
+        # Посмотрите, какая версия установлена
+        $ExecutableEditions = @("$Path\DiskInfo64.exe", "$Path\DiskInfo64S.exe", "$Path\DiskInfo64A.exe", "$Path\DiskInfo64K.exe")
+        $TestedPaths = Test-Path $ExecutableEditions
+        # Если не найдено ни одного из них, выбросьте ошибку
+        if ($TestedPaths -notcontains $true) {
+            Write-Error -Category ObjectNotFound -TargetObject $ExecutableEditions[0] -Message "CrystalDiskInfo executable was not found! Validate your install."
+            break
+        }
+        # Сопоставьте версию с путем к исполняемому файлу
+        $Executable = $ExecutableEditions[$TestedPaths.IndexOf($true)]
+        Start-Process -FilePath $Executable -WindowStyle Hidden
     }
     $(ConvertFrom-Ini $Config_ini).Setting
 }
